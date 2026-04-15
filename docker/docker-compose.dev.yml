@@ -1,18 +1,53 @@
 name: ghostfolio_dev
 services:
   postgres:
-    extends:
-      file: docker-compose.yml
-      service: postgres
+    image: docker.io/library/postgres:15-alpine
     container_name: gf-postgres-dev
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_READ_SEARCH
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - ../.env.dev
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -d "$${POSTGRES_DB}" -U $${POSTGRES_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres:/var/lib/postgresql/data
     ports:
       - ${POSTGRES_PORT:-5432}:5432
 
   redis:
-    extends:
-      file: docker-compose.yml
-      service: redis
+    image: docker.io/library/redis:alpine
     container_name: gf-redis-dev
+    restart: unless-stopped
+    user: '999:1000'
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - ../.env.dev
+    command:
+      - /bin/sh
+      - -c
+      - redis-server --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is not set}"
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'redis-cli --pass "$${REDIS_PASSWORD}" ping | grep PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - ${REDIS_PORT:-6379}:6379
 

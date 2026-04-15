@@ -1,8 +1,25 @@
 import { Big } from 'big.js';
+import { subMonths } from 'date-fns';
 
-import { getAnnualizedPerformancePercent } from './calculation-helper';
+import {
+  getAnnualizedPerformancePercent,
+  getIntervalFromDateRange
+} from './calculation-helper';
+import { resetHours } from './helper';
 
 describe('CalculationHelper', () => {
+  describe('getIntervalFromDateRange', () => {
+    it('Get interval for 1m date range', () => {
+      const { endDate, startDate } = getIntervalFromDateRange({
+        dateRange: '1m'
+      });
+
+      expect(startDate).toEqual(subMonths(resetHours(new Date()), 1));
+      expect(endDate.getTime()).toBeGreaterThan(startDate.getTime());
+    });
+  });
+
+
   describe('annualized performance percentage', () => {
     it('Get annualized performance', async () => {
       expect(

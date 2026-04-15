@@ -1,5 +1,6 @@
 export type DateRange =
   | '1d'
+  | '1m'
   | '1y'
   | '5y'
   | 'max'
