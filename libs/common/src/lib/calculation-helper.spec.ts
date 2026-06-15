@@ -19,7 +19,6 @@ describe('CalculationHelper', () => {
     });
   });
 
-
   describe('annualized performance percentage', () => {
     it('Get annualized performance', async () => {
       expect(
